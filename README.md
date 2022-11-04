@@ -1,2 +1,10 @@
 # ThreadPool
-Thread Pool class implemented with C++ for Linux platform 
+Thread Pool class implemented with `C++` and `Make` under `Linux` platform.
+
+### Usage
+
+```c++
+
+
+
+```

@@ -1,21 +1,23 @@
 #include "gtest/gtest.h"
 #include "thread_pool.hpp"
-#include <iostream>
-#include <fstream>
+#include <future>
+#include <chrono>
 
-void f(int n) {
-    std::ofstream fout("/dev/null");
-    std::cout << "Thread " << n << " started" << std::endl;
-    for(int i = 0; i < n * n * n; ++i) {
-        fout << i <<' ';
+TEST(ThreadPool, execution2) {
+    constexpr size_t THREAD_COUNT = 25;
+    // create thread pool consisting of 25 threads
+    ThreadPool pool (THREAD_COUNT);
+    constexpr size_t JOB_COUNT = 1000;
+    std::promise<int> p[JOB_COUNT];
+    // add jobs in thread pool queue
+    for (int i = 0; i < JOB_COUNT; ++i) {
+        pool.addJob([&p, i]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            p[i].set_value(i);
+        });
     }
-    std::cout << "Thread " << n << " ended" << std::endl;
-}
-
-TEST(ThreadPool, execution)
-{
-    ThreadPool pool;
-    for(int i = 0; i < 100; ++i) {
-        pool.addJob([i] { return f(i); });
+    for (int i = 0; i < JOB_COUNT; ++i) {
+        std::future f = p[i].get_future();
+        EXPECT_EQ(f.get(), i);
     }
 }

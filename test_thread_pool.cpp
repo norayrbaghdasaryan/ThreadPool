@@ -3,7 +3,7 @@
 #include <future>
 #include <chrono>
 
-TEST(ThreadPool, execution2) {
+TEST(ThreadPool, JobWithPromise) {
     constexpr size_t THREAD_COUNT = 25;
     // create thread pool consisting of 25 threads
     ThreadPool pool (THREAD_COUNT);
@@ -20,4 +20,23 @@ TEST(ThreadPool, execution2) {
         std::future f = p[i].get_future();
         EXPECT_EQ(f.get(), i);
     }
+}
+
+TEST(ThreadPool, HandleException) {
+    ThreadPool pool;
+    std::promise<void> p;
+    pool.addJob([&p]() {
+        try {
+            throw std::runtime_error("Message");
+        } catch (...) {
+            p.set_exception(std::current_exception());
+        }
+    });
+    bool catchVisited = false;
+    try {
+        p.get_future().get();
+    } catch (const std::exception& e) {
+        catchVisited = true;
+    }
+    EXPECT_TRUE(catchVisited);
 }

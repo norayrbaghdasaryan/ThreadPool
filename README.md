@@ -14,7 +14,6 @@ std::promise<int> p[JOB_COUNT];
 // add jobs in thread pool queue
 for (int i = 0; i < JOB_COUNT; ++i) {
     pool.addJob([&p, i]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         p[i].set_value(i);
     });
 }

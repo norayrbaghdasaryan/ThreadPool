@@ -9,11 +9,12 @@ Pool provides simple interface. Has `addJob` function, which pushes passed funct
 constexpr size_t THREAD_COUNT = 25;
 // create thread pool consisting of 25 threads
 ThreadPool pool (THREAD_COUNT);
-constexpr size_t JOB_COUNT = 1000;
+constexpr size_t JOB_COUNT = 50;
 std::promise<int> p[JOB_COUNT];
 // add jobs in thread pool queue
 for (int i = 0; i < JOB_COUNT; ++i) {
     pool.addJob([&p, i]() {
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // do some computations
         p[i].set_value(i);
     });
 }
